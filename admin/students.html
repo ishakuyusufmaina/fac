@@ -225,7 +225,7 @@ add.onclick = e=>{
    // let subjs = await getSubjects();
     let stdsRef = doc(db, schoolId, session, clas, "students");
     
-    let students = Array.from(document.querySelectorAll(".record")).map( row=> {
+   /* let students = Array.from(document.querySelectorAll(".record")).map( row=> {
       let name = row.querySelector(".name").textContent
       let gender = row.querySelector(".gender").value
       return {
@@ -234,7 +234,7 @@ add.onclick = e=>{
         //subjects: subjs
       }
       
-    });
+    });*/
     if (!currentStudents) return;
     if (!Object.values(currentStudents).length) return;
    //  await setDoc(stdsRef, currentStudents);
