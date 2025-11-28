@@ -187,7 +187,9 @@ let sectionRef = doc(db, schoolId, "section");
         try {
           let test1 = Number(subjects[subj][termIndex].test1 ?? 0);
           let test2 = Number(subjects[subj][termIndex].test2 ?? 0)
-          student.score += test1 + test2 + Number(subjects[subj][termIndex].exam);
+         let test3 = Number(subjects[subj][termIndex].test3 ?? 0)
+          
+          student.score += test1 + test3 + test2 + Number(subjects[subj][termIndex].exam);
           subHeads.add(subjects[subj][termIndex].name);
           
         } catch(e) {
