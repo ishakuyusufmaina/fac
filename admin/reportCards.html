@@ -230,15 +230,17 @@ let sectionRef = doc(db, schoolId, "section");
         
       let t1= Number(subjects[subj][termIndex].test1 ?? 0);
       let t2 = Number(subjects[subj][termIndex].test2 ?? 0);
- //     subjects.forEach(subj=>{
+      let t3 = Number(subjects[subj][termIndex].test3 ?? 0);
+        
+        //     subjects.forEach(subj=>{
         let row =document.createElement("tr");
         row.innerHTML = `
         <td>${subjects[subj][termIndex].name}</td>
-        <td>${t1 + t2}</td>
+        <td>${t1 + t2 +t3}</td>
         <td>${subjects[subj][termIndex].exam}</td>
-        <td>${t1 + t2 + Number(subjects[subj][termIndex].exam)}</td>
-        <td>${grade(t1+t2, Number(subjects[subj][termIndex].exam))}</td>
-        <td>${remark(t1+t2, Number(subjects[subj][termIndex].exam))}</td>
+        <td>${t1 + t2 + t3 + Number(subjects[subj][termIndex].exam)}</td>
+        <td>${grade(t1+t2+t3, Number(subjects[subj][termIndex].exam))}</td>
+        <td>${remark(t1+t2+t3, Number(subjects[subj][termIndex].exam))}</td>
         
         `;
         reportCard.appendChild(row);
