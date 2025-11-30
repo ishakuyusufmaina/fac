@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <script src="/config.js"></script>
+ <script src="../config.js"></script>
   <title>School Admin</title>
 <style>
   * {
@@ -318,7 +318,7 @@
 
     <div class="card students">
       <h2>Students</h2>
-      <a href="students.html">Manage Students</a>
+      <a href="class.html">Manage Students</a>
     </div>
 
     <div class="card fm">
@@ -330,6 +330,13 @@
       <h2>Manage Admins</h2>
       <a href="manageAdmins.html">Admin Settings</a>
     </div>
+      
+    <div class="card bill">
+      <h2>Cloud Storage, Usage and Billing</h2>
+      <a href="bill.html">Manage account</a>
+    </div>
+      
+      
       
     <!--/div>
       <div class="card">
@@ -394,7 +401,8 @@ const adminFunctions = [
     "subjects",
     "auth",
     "monTAS",
-    "monSA"
+    "monSA",
+    "bill"
   ];
   
 adminFunctions.forEach(fx=>{
