@@ -254,8 +254,9 @@ let sectionRef = doc(db, schoolId, "section");
         </tr>
       `;
       let subjects = std.subjects;
-      for (const subj in subjects) {
-        
+      let subjKeys = Object.keys(subjects).sort();
+      //for (const subj in subjects) {
+       subjKeys.forEach(subj=>{ 
       let t1= Number(subjects[subj][termIndex].test1 ?? 0);
       let t2 = Number(subjects[subj][termIndex].test2 ?? 0);
       let t3 = Number(subjects[subj][termIndex].test3 ?? 0);
@@ -272,7 +273,7 @@ let sectionRef = doc(db, schoolId, "section");
         
         `;
         reportCard.appendChild(row);
-      }//);
+      });
       
       
       const comnt = remark(std.score/std.sc, 0); //comment(std.score/std.sc, averageInterps);
