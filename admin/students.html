@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/config.js"></script>
+
   <title>STUDENT</title>
   
   <style>
@@ -72,12 +72,7 @@
   <select id="sessionSelect">
     <option> -select session- </option>
   </select>
-  <!--4select>
-    <option> -select term- </option>
-    <option>1<sup>st</sup> term</option>
-    <option>2<sup>nd</sup> term</option>
-    <option>3<sup>rd</sup> term</option>
-  </select-->
+
   <select id="classSelect">
     <option value=""> -select class- </option>
     
@@ -106,7 +101,7 @@
   import {getFirestore, doc, setDoc, getDoc, runTransaction} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
   import {getAuth, signOut, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
      // import {getDatabase, set, ref, onValue, child, get } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
-      const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyCm_DSZaYVQCt0ubBwRkE9nOTryJayxH0w",
   authDomain: "school-in-the-box.firebaseapp.com",
   projectId: "school-in-the-box",
@@ -116,13 +111,13 @@
   measurementId: "G-3MGCDH4FRF"
 };
     
-    
-   // const schoolId = "alhidayah";
+   const schoolId = "fac";
       const app = initializeApp(firebaseConfig);
       const analytics = getAnalytics(app);
       const auth = getAuth(app);
     const db = getFirestore(app);
-    
+    const container = document.getElementById('table');
+
     let currentStudents = null;
     
     const terms = ["first term", "second term", "third term"];
@@ -162,18 +157,16 @@ let sectionDoc = await getDoc(sectionRef);
 
  }
   
-  
 
   function addRow(result){
       console.log(result.gender=="Male");
-    const container = document.getElementById('table');
       const row = document.createElement('tr');
     let clas = key(classSelect.value);
       if (!clas) return;
     row.classList.add("record");
     let sn= container.children.length;
       row.innerHTML = `
-      <td>
+      <td class="id">
       ${sn+1}
       </td>
        <td class="name" contenteditable>
@@ -181,7 +174,7 @@ let sectionDoc = await getDoc(sectionRef);
       </td> 
       <td>
          <select class="gender">
-            <option> -select gender- </option>
+            <option value=""> -select gender- </option>
             <option value="Female">Female</option>
            <option value="Male">Male</option>
 
@@ -189,15 +182,22 @@ let sectionDoc = await getDoc(sectionRef);
     </td>    
       `;
       container.appendChild(row);
-      let id = "std"+result.sn;
+      let id = result.id;
       let nameIn = row.querySelector(".name");
       nameIn.oninput = e=>{
           currentStudents[id].name = nameIn.textContent;
       }
+       row.querySelector(".id").ondblclick = e=>{
+           console.log(id);
+           delete currentStudents[id];
+           row.remove();
+       }
       let genderIn = row.querySelector(".gender");
       genderIn.onchange = e=>{
           currentStudents[id].gender = genderIn.value;
       }
+      if (result.gender && result.gender.trim() == "-select gender-")
+      result.gender = null;
      if (result.gender) 
       row.lastElementChild.querySelector(`select>option[value=${result.gender}]`).selected = true;
   
@@ -205,20 +205,26 @@ let sectionDoc = await getDoc(sectionRef);
   }
 add.onclick = e=>{
   let result ={
-    sn: table.children.length,
     name: "",
-    gender: ""
+    gender: "",
+    
   }
-  addRow(result);
-  currentStudents["std"+result.sn] = result;
+  
+    let lastN = Number(container.children.length);
+    while (currentStudents["std"+lastN]){
+        lastN++;
+    }
+    console.log(lastN);
+    let id = "std"+lastN;
+    currentStudents[id] = result;
+    result.id = id;
+    addRow(result);
 }
   
    /* printBtn.onclick = e=>{
         window.print();
     }*/
   saveBtn.onclick = async e=>{
-    
-    
     let clas = key(classSelect.value);
     let session = key(sessionSelect.value);
     if (!(clas && session)) return;
@@ -237,15 +243,16 @@ add.onclick = e=>{
     });*/
     if (!currentStudents) return;
     if (!Object.values(currentStudents).length) return;
-   //  await setDoc(stdsRef, currentStudents);
-  let students= currentStudents;
+    
+    // await setDoc(stdsRef, currentStudents);
+ let students = currentStudents;
     await runTransaction(db, async transaction=>{
      let stdsDoc = await transaction.get(stdsRef);
-     let stds = stdsDoc.exists()? stdsDoc.data() : {};
+    /* let stds = stdsDoc.exists()? stdsDoc.data() : {};
      Object
        .keys(students)
-       .forEach(k=>stds[k] = students[k]);
-    await transaction.set(stdsRef, stds);
+       .forEach(k=>stds[k] = students[k]);*/
+    await transaction.set(stdsRef, students);
    });
     alert("saved!");
     console.log(JSON.stringify(students));
@@ -272,8 +279,17 @@ add.onclick = e=>{
       currentStudents = stdsDoc.data();
       for (const id in currentStudents){
           let student = currentStudents[id];
+          student.id = id;
           addRow(student)
       } 
+        let table = document.getElementById("table");
+      let sortedRows = Array.from(table.children).sort((a, b)=>{
+        let nameA = a.querySelector(".name").textContent.trim();
+        let nameB = b.querySelector(".name").textContent.trim();
+        return nameA.localeCompare(nameB)      
+       });
+        sortedRows.forEach((row, i)=>row.querySelector(".id").innerHTML =i+1);
+      table.append(...sortedRows);
       //students.forEach(student=>addRow(student));
       
     } else 
