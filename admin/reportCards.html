@@ -145,7 +145,7 @@ let sectionRef = doc(db, schoolId, "section");
     let stdsDoc = await getDoc(stdsRef);
     if (stdsDoc.exists()){
       students = Object.values(stdsDoc.data());
-      console.log(JSON.stringify(students));
+     // console.log(JSON.stringify(students));
       
       //return students
       
@@ -186,11 +186,11 @@ let sectionRef = doc(db, schoolId, "section");
        
       student.score=0;
       student.sc = 0;
-      let subjects =sectSubjs; // student.subjects;
+      let subjects = student.subjects;
       
       for (const subj in subjects) {
-        
-        console.log(JSON.stringify(subjects[subj]))
+        if (!sectSubjs.includes(subj)) continue;
+       // console.log(JSON.stringify(subjects[subj]))
         try {
           let test1 = Number(subjects[subj][termIndex].test1 ?? 0);
           let test2 = Number(subjects[subj][termIndex].test2 ?? 0)
@@ -206,8 +206,9 @@ let sectionRef = doc(db, schoolId, "section");
       }
       stdList.push(student);
     })       
-    console.log(JSON.stringify(stdList));
+   // console.log(JSON.stringify(stdList));
     stdList.forEach(std=>{
+      console.log(std.position);
       let reportCard = document.createElement("table");
       reportCard.innerHTML = `
          <caption>
