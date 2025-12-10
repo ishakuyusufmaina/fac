@@ -119,9 +119,9 @@ let sectionRef = doc(db, schoolId, "section");
   let sectionDoc = await getDoc(sectionRef);
 
 
-  
+  let sections;
    if (sectionDoc.exists()){
-   let sections = sectionDoc.data();
+   sections = sectionDoc.data();
      
    let keys = Object.keys(sections);
    
@@ -175,6 +175,9 @@ let sectionRef = doc(db, schoolId, "section");
     if (!students) return;
     let ssi = sessionSelect.selectedIndex;
     let termIndex = sessionSelect.options[ssi].getAttribute("data-term");
+    let sectK = classSelect.selectedOptions[0].parentElement.label;
+    let sectSubjs = sections[sectK].subjects;
+    
  // alert(termIndex);
     let stdList = new StdList();
     let subHeads = new Set();
@@ -183,7 +186,7 @@ let sectionRef = doc(db, schoolId, "section");
        
       student.score=0;
       student.sc = 0;
-      let subjects = student.subjects;
+      let subjects =sectSubjs; // student.subjects;
       
       for (const subj in subjects) {
         
