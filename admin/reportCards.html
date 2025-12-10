@@ -267,7 +267,7 @@ let sectionRef = doc(db, schoolId, "section");
         //     subjects.forEach(subj=>{
         let row =document.createElement("tr");
         row.innerHTML = `
-        <td>${subjects[subj][termIndex].name}</td>
+        <td>${subjects[subj][termIndex].name.toUpperCase()}</td>
         <td>${t1 + t2 +t3}</td>
         <td>${subjects[subj][termIndex].exam}</td>
         <td>${t1 + t2 + t3 + Number(subjects[subj][termIndex].exam)}</td>
