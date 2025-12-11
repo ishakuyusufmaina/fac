@@ -189,7 +189,7 @@ let sectionRef = doc(db, schoolId, "section");
       let subjects = student.subjects;
       
       for (const subj in subjects) {
-        if (!sectSubjs.includes(subj) && isSec(classSelect.value)){
+        if (!sectSubjs.includes(subjects[subj][termIndex].name) && isSec(classSelect.value)){
           console.log(8);
          delete subjects[subj]
           continue;
@@ -263,7 +263,7 @@ let sectionRef = doc(db, schoolId, "section");
       `;
       let subjects = std.subjects;
     console.log(Object.keys(subjects));
-      let subjKeys =isSec(classSelect.value)? sectSubjs.sort() : Object.keys(subjects).sort();
+      let subjKeys =isSec(classSelect.value)? sectSubjs.sort().map(s=>key(s)) : Object.keys(subjects).sort();
       //for (const subj in subjects) {
       console.log(subjKeys);
        subjKeys.forEach(subj=>{ 
@@ -388,6 +388,10 @@ let sectionRef = doc(db, schoolId, "section");
   return num + suffix;
 }
   
+  
+  function key(token){
+      return token.replaceAll(" ","").replaceAll("/", "").replaceAll(",", "");
+    }
   
   </script>
   
