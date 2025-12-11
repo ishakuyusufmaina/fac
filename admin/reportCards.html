@@ -191,7 +191,7 @@ let sectionRef = doc(db, schoolId, "section");
       for (const subj in subjects) {
         if (!sectSubjs.includes(subj) && isSec(classSelect.value)){
           console.log(8);
-          delete subjects[subj]
+         delete subjects[subj]
           continue;
         }
        // console.log(JSON.stringify(subjects[subj]))
@@ -262,8 +262,10 @@ let sectionRef = doc(db, schoolId, "section");
         </tr>
       `;
       let subjects = std.subjects;
+    console.log(Object.keys(subjects));
       let subjKeys =isSec(classSelect.value)? sectSubjs.sort() : Object.keys(subjects).sort();
       //for (const subj in subjects) {
+      console.log(subjKeys);
        subjKeys.forEach(subj=>{ 
          if (!subjects[subj] && isSec(classSelect.value)) return;
       let t1= Number(subjects[subj][termIndex].test1 ?? 0);
@@ -273,7 +275,7 @@ let sectionRef = doc(db, schoolId, "section");
         //     subjects.forEach(subj=>{
         let row =document.createElement("tr");
         row.innerHTML = `
-        <td>${subjects[subj][termIndex].name.toUpperCase()}</td>
+        <td>${subjects[subj][termIndex].name.toUpperCase().replace("COMPREHENSION", "STUDIES").replace("CITIZENSHIP EDUCATION", "CITIZENSHIP STUDIES").replace("RELIGION STUDIES I.R.S", "STUDIES")}</td>
         <td>${t1 + t2 +t3}</td>
         <td>${subjects[subj][termIndex].exam}</td>
         <td>${t1 + t2 + t3 + Number(subjects[subj][termIndex].exam)}</td>
