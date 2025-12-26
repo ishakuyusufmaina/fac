@@ -4,132 +4,206 @@
 <head>
   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="/config.js"></script>
+
   <title>Position</title>
   
   <style>
- table {
-  border-collapse: collapse;
-  width: 100%;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  margin: auto;
-}
  
- th,
-td {
-  border: 1px solid #ddd;
+    /* ===== CSS RESET & BASE ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #0f1115;
+  color: #eaeaea;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== HEADINGS ===== */
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+  letter-spacing: 0.5px;
+}
+
+/* ===== BUTTON ===== */
+button {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #3a3a3a, #1f1f1f);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #555, #333);
+  transform: translateY(-1px);
+}
+
+/* ===== SELECT DROPDOWNS ===== */
+.select-container {
+  display: grid;
+  gap: 10px;
+  max-width: 500px;
+  margin: 15px auto;
+}
+
+select {
+  background: #1a1d23;
+  color: #fff;
+  font-size: 1.1rem;
   padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #333;
   text-align: center;
 }
 
-.vertical-header-table .thead th.subject {
+/* ===== TABLE CONTAINER ===== */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 15px;
+}
+
+/* ===== TABLE ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #151820;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+}
+
+caption {
+  caption-side: top;
+  padding: 10px;
+  font-weight: bold;
+  color: #cfd8ff;
+}
+
+/* ===== TABLE HEAD ===== */
+th {
+  background: #1f2430;
+  color: #ffffff;
+  padding: 10px;
+  font-weight: 600;
+  border: 1px solid #2a2f3d;
+}
+
+/* ===== TABLE DATA ===== */
+td {
+  padding: 10px;
+  border: 1px solid #2a2f3d;
+  color: #e6e6e6;
+  text-align: center;
+}
+
+/* ===== STRIPED ROWS ===== */
+tbody tr:nth-child(even) {
+  background: #181c26;
+}
+
+/* ===== HOVER ===== */
+tbody tr:hover {
+  background: #22283a;
+}
+
+/* ===== VERTICAL SUBJECT HEADERS ===== */
+.vertical-header-table .thead th.subject,
+#gtotal,
+#position {
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  background: #004080;
-  color: white;
-  height: 150px;
-  vertical-align: center;
+  height: 140px;
   text-transform: uppercase;
   text-align: left;
-  border: 1px solid grey;
-}
-  #gtotal, #position {
-    writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  
-  height: 150px;
-  vertical-align: center;
-    text-transform: uppercase;
-  text-align: left;
-  }
-
- tbody tr:nth-child(even) {
-//  background-color: #f9f9f9;
+  background: linear-gradient(180deg, #004080, #002b55);
+  border: 1px solid #445;
+  font-size: 0.85rem;
 }
 
- tbody tr:hover {
-  background-color: #eef;
-   color: black;
+/* ===== SUMMARY TABLE ===== */
+#summary {
+  margin-top: 30px;
 }
 
+/* ===== HR ===== */
+hr {
+  border: none;
+  height: 3px;
+  margin: 25px 0;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0)
+  );
+}
+
+/* ===== PRINT MODE ===== */
+@media print {
   body {
-      background-color: #121212;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-  select {
-    background-color: #121212;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
+    background: #ffffff;
+    color: #000;
   }
-  
-  
-      button {
-      padding: 6px 12px;
-      background-color: #333;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
 
-    button:hover {
-      background-color: #555;
-    }
+  table {
+    box-shadow: none;
+  }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
+  th {
+    background: #eaeaea;
+    color: #000;
+  }
 
-    th, td{
-      padding: 10px;
-      border: 1px solid #333;
-      text-align: center;
-    }
- h1, .save-container {
- //   display: inline-block;
-text-align: center;
-    
+  td {
+    color: #000;
   }
- 
- 
-   .select-container, .table-container {
-    text-align: center;
-    margin: auto;
-    padding: 10px;
-    //border: 1px solid white;
-    width: 100%;
-    overflow-x: auto;
+
+  .no-print {
+    display: none;
   }
- 
- 
- select {
-    background-color: #121212;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      border: none;
-    font-size: 24px;
-    text-align: center;
-    width: 100%;
-    display: inline-block;
+  th {
+    border: 1px solid black !important;
   }
-    
-  hr {
-    border: 0;
-    height: 4px;
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(200, 200, 200, 0.75), rgba(0, 0, 0, 0));
 }
+
+/* ===== MOBILE TWEAKS ===== */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  select {
+    font-size: 1rem;
+  }
+
+  th,
+  td {
+    padding: 8px;
+    font-size: 0.85rem;
+  }
+}
+ 
   </style>
 </head>
 <body>
+ 
   <h1>
    Result and Position
   </h1>
-   <div class="select-container">
+ <div class="no-print">
+    <button id="print" onclick="window.print()">Download</button>
+  </div>
+ <div class="select-container">
    <select id="sessionSelect">
     <option> -select session- </option>
   </select>
@@ -171,7 +245,7 @@ text-align: center;
       const auth = getAuth(app);
     const db = getFirestore(app);
 
-//  const schoolId = "alhidayah";
+  const schoolId = "fac";
   class StdList extends Array {
   constructor() {
     super();
@@ -320,7 +394,9 @@ if (sessionsDoc.exists()){
         try {
          let t1 = Number(subjects[subj][termIndex].test1 ?? 0);
          let t2 = Number(subjects[subj][termIndex].test2 ?? 0);
-          student.score += t1+t2 + Number(subjects[subj][termIndex].exam);
+          let t3 = Number(subjects[subj][termIndex].test3 ?? 0);
+
+          student.score += t1+t2+t3 + Number(subjects[subj][termIndex].exam);
           subHeads.add(subjects[subj][termIndex].name);
           
         } catch(e) {
@@ -359,7 +435,9 @@ let hElm = document.createElement("th");
              for (let subj in subjects){
                 let t1 = Number(subjects[subj][termIndex].test1 ?? 0);
                 let t2 = Number(subjects[subj][termIndex].test2 ?? 0);
-                tests += "<td>"+(t1+t2)+"</td>";
+                let t3 = Number(subjects[subj][termIndex].test3 ?? 0);
+    
+                tests += "<td>"+(t1+t2+t3)+"</td>";
              }
           return tests + "<td> - </td> <td> - </td>";
              
@@ -437,7 +515,7 @@ let hElm = document.createElement("th");
   
   
   
-  
+    
   </script>
 </body>
 </html>
