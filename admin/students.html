@@ -119,6 +119,7 @@ const firebaseConfig = {
     const container = document.getElementById('table');
 
     let currentStudents = null;
+    var prevStudents = null;
     
     const terms = ["first term", "second term", "third term"];
 
@@ -252,7 +253,7 @@ add.onclick = e=>{
      Object
        .keys(students)
        .forEach(k=>stds[k] = students[k]);*/
-    await transaction.set(stdsRef, students);
+     transaction.set(stdsRef, students);
    });
     alert("saved!");
     console.log(JSON.stringify(students));
@@ -260,10 +261,13 @@ add.onclick = e=>{
   }
   
   classSelect.onchange = async e=>{
-    loadStudents();
+      prevStudents = currentStudents;
+       loadStudents();
+      
   }
     sessionSelect.onchange = async e=>{
-    loadStudents();
+        prevStudents = currentStudents;
+     loadStudents();
   }
     
  
@@ -275,12 +279,15 @@ add.onclick = e=>{
     
     let stdsRef = doc(db, schoolId, session, clas, "students");
     let stdsDoc = await getDoc(stdsRef);
-    if (stdsDoc.exists()){
-      currentStudents = stdsDoc.data();
+    if (stdsDoc.exists() || prevStudents){
+        const data = stdsDoc.exists()? stdsDoc.data() : {};
+      currentStudents = Object.keys(data).length? data : prevStudents;
+      console.log(888);
       for (const id in currentStudents){
           let student = currentStudents[id];
           student.id = id;
-          addRow(student)
+          if (prevStudents) delete student.subjects;
+          addRow(student);
       } 
         let table = document.getElementById("table");
       let sortedRows = Array.from(table.children).sort((a, b)=>{
