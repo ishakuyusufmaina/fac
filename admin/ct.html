@@ -80,14 +80,6 @@
     
 
   
-
-    
-
-  
- 
-    
-
-  
   
  h1 {
 display: inline-block;
@@ -173,12 +165,12 @@ details ol li::before {
 
 <body>
   <h1>
-    Form Masters/Class Teachers
+    Class Teachers
   </h1>
   <table>
     <tr>
       <th>Class</th>
-      <th>Form master/Class Teacher</th>
+      <th>Class Teacher</th>
     </tr>
     
     <tbody id="table">
@@ -220,7 +212,7 @@ details ol li::before {
     })
   });
   
-   let relFxn = user.adminFunctions.fm;
+   let relFxn = user.adminFunctions.ct;
   console.log(JSON.stringify(relFxn));
   if (sectionDoc.exists()){
     let sections = sectionDoc.data();
@@ -251,9 +243,9 @@ details ol li::before {
           list.innerHTML = teacher.name;
           tchList.append(list);
           teachers[username].role = teachers[username].role ?? {};
-          teachers[username].role.fm = teachers[username].role.fm ?? [];
-          let fmRole = new Set(teachers[username].role.fm);
-          teachers[username].role.fm = Array.from(fmRole);
+          teachers[username].role.ct = teachers[username].role.ct ?? [];
+          let fmRole = new Set(teachers[username].role.ct);
+          teachers[username].role.ct = Array.from(fmRole);
          /* teachers[username].role = {};
           return*/
           let updateFM = ()=>{
@@ -261,12 +253,12 @@ details ol li::before {
             fm.textContent = teacher.name;
             let username = fm.getAttribute("data-username");
             fm.setAttribute("data-username", teacher.username);
-            if (!teacher.role.fm.includes(clas)) 
-            teacher.role.fm.push(clas);
+            if (!teacher.role.ct.includes(clas)) 
+            teacher.role.ct.push(clas);
             
             return username;
           }
-          if (teacher.role.fm.includes(clas)){
+          if (teacher.role.ct.includes(clas)){
             updateFM();
           }
           list.onclick = e=>{
@@ -275,8 +267,8 @@ details ol li::before {
             
             details.open = false;
             if (!username) return;
-            let index = teachers[username].role.fm.indexOf(clas);
-            teachers[username].role.fm.splice(index, 1);
+            let index = teachers[username].role.ct.indexOf(clas);
+            teachers[username].role.ct.splice(index, 1);
             //teachers[username].adminFunctions.students??={resources: []};
            
          
@@ -291,6 +283,7 @@ details ol li::before {
   
   save.onclick = async e=>{
     let teachersRef = doc(db, schoolId, "teachers");
+    if (!teachers || !Object.values(teachers)) return;
     await setDoc(teachersRef, teachers);
     alert("saved!");
   }

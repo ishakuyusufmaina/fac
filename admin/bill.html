@@ -141,12 +141,12 @@
 <body>
   
   <div class="dashboard">
-    <img src="../logo.jpg">
+    <img src="../logo.png">
     <h2>Cloud Storage and Billing💳</h2>
     <hr>
     <div class="stat">
       <span class="label">Upscaling Rate</span>
-      <span id="coun" class="value">₦200/Student</span>
+      <span id="coun" class="value">₦250/Student</span>
     </div>
     <div class="stat">
       <span class="label">Students upscaled</span>
@@ -181,7 +181,7 @@
   import {getFirestore, query, collection, getCountFromServer, onSnapshot, doc, setDoc, getDoc} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
   import {getAuth, updateProfile, signOut, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
      // import {getDatabase, set, ref, onValue, child, get } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
-     const firebaseConfig = {
+   /*   const firebaseConfig = {
   apiKey: "AIzaSyCm_DSZaYVQCt0ubBwRkE9nOTryJayxH0w",
   authDomain: "school-in-the-box.firebaseapp.com",
   projectId: "school-in-the-box",
@@ -189,7 +189,7 @@
   messagingSenderId: "596350496353",
   appId: "1:596350496353:web:84c66c351700ddf0824420",
   measurementId: "G-3MGCDH4FRF"
-};
+};*/
 
   
       const app = initializeApp(firebaseConfig);
@@ -210,7 +210,7 @@
    
       
       
-  const rate = 200;
+  const rate = 250;
   
   let b = (credit/rate) - count*rate;
   

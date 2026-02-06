@@ -1,4 +1,4 @@
-.<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -75,7 +75,7 @@
     }
 
     /* Table */
-    table.students {
+    table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 1rem;
@@ -84,7 +84,7 @@
       overflow: hidden;
     }
 
-    th.std, td.std {
+    th, td {
       padding: 12px 10px;
       border-bottom: 1px solid var(--border);
       text-align: center;
@@ -119,43 +119,28 @@
       transform: scale(1.05);
     }
 
-  table.psycho {
-    border-radius: 8px;
-      border: 2px solid var(--border);
- 
-  }
-  table.psycho td.domain {
-    text-align: right;
-    
-  }
-  table.psycho td {
-    text-align: left;    
-    padding: 6px 5px;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.95rem;
-  }
     /* Responsive table */
     @media (max-width: 768px) {
-      table.std, thead.std, tbody.std, th.std, td.std, tr.std {
+      table, thead, tbody, th, td, tr {
         display: block;
       }
       thead {
         display: none;
       }
-      tr.std {
+      tr {
         margin-bottom: 1rem;
         border: 1px solid var(--border);
         border-radius: 8px;
         overflow: hidden;
         background: var(--card);
       }
-      td.std {
+      td {
         text-align: left;
         border: none;
         padding: 0.8rem;
         position: relative;
       }
-      td.std::before {
+      td::before {
         content: attr(data-label);
         font-weight: 600;
         text-transform: uppercase;
@@ -199,7 +184,7 @@
     </select>
   </div>
 
-  <table class="students">
+  <table>
     <thead>
       <tr>
         <th>Passport</th>
@@ -207,11 +192,10 @@
         <th>Name</th>
         <th>Gender</th>
         <th>Religion</th>
-        <th>Behaviour and Activities</th>
         <!--th>Parent</th-->
       </tr>
     </thead>
-    <tbody id="table" class="std"></tbody>
+    <tbody id="table"></tbody>
   </table>
 
   <button id="add">Add</button>
@@ -223,9 +207,20 @@
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
   import {getFirestore, writeBatch, deleteDoc, getDocs, getCountFromServer, collection, query, where, updateDoc, arrayUnion, doc, setDoc, getDoc, runTransaction} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
   import {getAuth, signOut, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-   
+      /*const firebaseConfig = {
+  apiKey: "AIzaSyCm_DSZaYVQCt0ubBwRkE9nOTryJayxH0w",
+  authDomain: "school-in-the-box.firebaseapp.com",
+  projectId: "school-in-the-box",
+  storageBucket: "school-in-the-box.firebasestorage.app",
+  messagingSenderId: "596350496353",
+  appId: "1:596350496353:web:84c66c351700ddf0824420",
+  measurementId: "G-3MGCDH4FRF"
+}; */
+  
+  
+  const schoolId = "innovative";
      // Replace with your Cloudinary details
-  const cloudName = "dkpjczu0l"; // Replace with your Cloudinary cloud name
+  const cloudName = "daktkkz2k"; // Replace with your Cloudinary cloud name
   const uploadPreset = "passport"; // Replace with your unsigned preset
   // const schoolId = "alhidayah";
   const app = initializeApp(firebaseConfig);
@@ -279,16 +274,14 @@ let sectionDoc = await getDoc(sectionRef);
 
  }*/
   
-  let sections = sectionDoc.data(); 
+  
  onAuthStateChanged(auth, async user=>{ 
        if (!user) return;
        let id = user.email.replace(/@.*/, "");
       let teachers = (await getDoc(doc(db, schoolId, "teachers"))).data()
        let teacher = teachers[id];
        if (sectionDoc.exists()){
-           teacher.adminFunctions??={};
-         teacher.adminFunctions.students??={};
-         teacher.adminFunctions.students.resources??=[];
+           let sections = sectionDoc.data();
            if (teacher.role??{}.fm){
              teacher.adminFunctions.students.resources = Array.from(new Set(teacher.adminFunctions.students.resources.concat(teacher.role.fm)));
            }
@@ -321,68 +314,31 @@ let sectionDoc = await getDoc(sectionRef);
     let clas = key(classSelect.value);
     if (!clas) return;
     row.classList.add("record");
-    row.classList.add("std");
     console.log(result.picURL);
-    if (!result.section){
-      result.section = getSectionByClass(clas, sections);  
-      console.log(clas, result.section);      
-    }
     let picURL = optimizeCloudinaryUrl(result.picURL);
       row.innerHTML = `
-      <td class="passport std">
+      <td class="passport">
       <img src="${picURL}">
       <input type="file" accept="image/*" capture="environment" id="cameraInput">
       </td>
-      <td class="id std">${result.id??"Not Yet Generated"}</td>
-       <td class="name std" contenteditable>
+      <td class="id">${result.id??"Not Yet Generated"}</td>
+       <td class="name" contenteditable>
         ${result.name.toUpperCase()}
       </td> 
-      <td class="std">
-         <select class="gender">
-            <option value=""> -select gender- </option>
-            <option value="female">Female</option>
-           <option value="male">Male</option>
-        </select>
+      <td>
+         
     
     </td>    
-    <td class="std">
-    <select class="religion std" value="Islam">
-         <option value=""> -select religion- </option>
-         <option value="Islam">Muslim</option>
-         <option value="Christian">Christian</option>
-    </select>
+    <td>
+    Attention <input type="range" id="attentionRange" min="0" max="5" value="50" step="1" oninput="updateMeter()">
+
     </td>
-    <td class="psycho std"></td>
-    <!--td class="parent std">
+    <!--td class="parent">
     ${parent? `<a href="parent/profile.html?pin=${parent.pin}">PIN:`+parent.pin+'<br>'+parent.name.toUpperCase()+"</a>"
     : 
     '<span >Link parent by</span><button class="pin-link">PIN</button> | <button class="match-link">matching</button>'}
     </td--> 
       `;
-    let psychoElm = row.querySelector(".psycho");
-    let domains = sections[result.section].psychometrics??[];
-    result.psychometrics??={};
-    let t = document.createElement("table");
-    t.classList.add("psycho");
-    psychoElm.append(t);
-    domains.forEach(domain=>{
-      let r = t.insertRow();
-      let d = r.insertCell();
-      d.innerHTML = domain;
-      d.classList.add("domain");
-      console.log(domain);      
-      let v = result.psychometrics[domain]??0;
-      let pElm = document.createElement("p");
-      pElm.innerHTML =`<input type="range" min="0" max="5" value="${v}" step="1"> ${domain} <span>(${v})</span>`
-     // psychoElm.append(pElm);
-      let meter = r.insertCell();
-      meter.innerHTML = `<input type="range" min="0" max="5" value="${v}" step="1"><span>${v}</span>`
-      meter.querySelector("input").oninput = e=>{
-        let v = e.target.value;
-        meter.querySelector("span").innerHTML = `${v}`;
-        result.psychometrics[domain] = v;
-      }
-    })
     if (false/*!parent && result.id*/){
       row.querySelector(".parent > .pin-link").onclick = e=>{
         let pin = window.prompt("Enter PIN: ");
@@ -431,7 +387,6 @@ let sectionDoc = await getDoc(sectionRef);
        if (window.confirm("Are you sure you want to delete this student?")){
          let docId = result.id.replaceAll("/", "_");
          await deleteDoc(doc(db, schoolId, "db", "students", docId));
-         row.remove();
          alert("Done!");
        }
      }
@@ -491,18 +446,12 @@ let sectionDoc = await getDoc(sectionRef);
       genderIn.value = !result.gender? "" : result.gender.toLowerCase();
   }
 add.onclick = e=>{
-  let cls = classSelect.value.trim();
-  console.log(cls);
-  let section = getSectionByClass(cls, sections)
-    
-   
-  console.log(section);
   let result ={
     sn: table.children.length,
     name: "",
     gender: "",
-    religion: "",
-    section    
+    religion: ""
+    
   }
   addRow(result);
     let lastN = Number(result.sn);
@@ -664,7 +613,6 @@ add.onclick = e=>{
                 student.id = lastStdId;
                 upStd.class = classSelect.value.toLowerCase();
                 upStd.id = student.id;
-                
                 console.log(student.name);
                 upStd.names = student.name.trim().split(" ").map(n=>n.toLowerCase());
                 upStd.name = student.name.toLowerCase();
@@ -673,10 +621,6 @@ add.onclick = e=>{
                 upStd.religion = student.religion.toLowerCase();
                 delete stds[id] 
                 stds[lastStdId] = student;
-                for (const i in student){
-                  if (!upStd[i]) upStd[i]=student[i];
-                }
-              console.log(upStd.section);
                 await transaction.set(doc(db, schoolId, "db", "students", upStd.id.replaceAll("/", "_")), upStd);
                 await transaction.set(stdsRef, stds);
                 await transaction.set(doc(db, schoolId, key(session.year+terms[session.term])), {lastStudentId: lastId}, {merge:true});
@@ -751,17 +695,7 @@ function isEqual(a, b) {
 // Usage:
 //const data = await searchAndMatch("child.html");
 //console.log("Got:", data);
-  function getSectionByClass(cls, sections){
-     let section = null;
-     for (const sect in sections){    
-       let classes = sections[sect].classes.map(c=>key(c))
-       console.log(classes, cls);
-       if (classes.includes(key(cls))) {
-         section = sect;   
-       }
-     } 
-     return section
-  }
+  
   </script>
 </body>
 </html>
