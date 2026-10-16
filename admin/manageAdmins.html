@@ -215,7 +215,7 @@
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
   import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
-  import {getFirestore, doc, getDoc, getDocs, collection, query, where, writeBatch} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+  import {getFirestore, doc, getDoc, setDoc} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
   import {getAuth, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
 
   const app = initializeApp(firebaseConfig);
@@ -282,32 +282,25 @@
   const userId = id;
   const isSchool = id === schoolId;
 
-  // Teachers live one per document: schoolId/db/teachersV2/{username}.
-  // Only admins are queried, and only the person being added is fetched on demand.
-  const teachersCol = collection(db, schoolId, "db", "teachersV2");
-  const teacherRef = tid => doc(teachersCol, tid);
-
-  let sectionDoc, rolesDoc, myDoc, adminSnap, schoolTeachersDoc;
+  let teacherDoc, sectionDoc, rolesDoc;
   try {
-    [sectionDoc, rolesDoc, myDoc, adminSnap, schoolTeachersDoc] = await Promise.all([
+    [teacherDoc, sectionDoc, rolesDoc] = await Promise.all([
+      getDoc(doc(db, schoolId, "teachers")),
       getDoc(doc(db, schoolId, "section")),
-      getDoc(doc(db, schoolId, "roles")),
-      isSchool ? Promise.resolve(null) : getDoc(teacherRef(id)),
-      getDocs(query(teachersCol, where("isAdmin", "==", true))),
-      isSchool ? getDoc(doc(db, schoolId, "school-teachers")) : Promise.resolve(null)
+      getDoc(doc(db, schoolId, "roles"))
     ]);
   } catch (err) {
     console.error(err);
     fatal("Could not load the data (" + (err.code || err.message) + "). Check your connection and reload.");
   }
+  const teachers = teacherDoc.exists() ? teacherDoc.data() : {};
 
   const sectionData = sectionDoc.exists() ? sectionDoc.data() : {};
   const roles = rolesDoc.exists() ? (rolesDoc.data().list ?? []) : [];
 
   let sects = Object.keys(sectionData);
   if (!isSchool) {
-    const mine = myDoc?.exists() ? myDoc.data() : null;
-    const grant = mine?.adminFunctions?.admins;
+    const grant = teachers[id]?.adminFunctions?.admins;
     if (!grant) fatal("You don't have permission to manage admins.");
     sects = (grant.resources ?? []).filter(s => sectionData[s]);
   }
@@ -350,7 +343,7 @@
     .filter(([, , resources]) => resources);
 
   // ---------- state ----------
-  // admins: id -> { data, initial, details, refresh }
+  // admins: id -> { id, data, initial, details, refresh }
   const admins = new Map();
   const canon = v => Array.isArray(v) ? [...v].sort().map(canon)
     : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map(k => [k, canon(v[k])])) : v;
@@ -383,12 +376,12 @@
 
     const details = mk("details", "admin");
     const summary = mk("summary");
-    const avatar = mk("div", "avatar", initials(a.name ?? a.username));
+    const avatar = mk("div", "avatar", initials(a.name ?? rec.id));
     const who = mk("div", "who");
-    const whoName = mk("div", "who-name", a.name ?? a.username);
+    const whoName = mk("div", "who-name", a.name ?? rec.id);
     const changedBadge = mk("span", "badge warn", "Unsaved");
     whoName.append(changedBadge);
-    who.append(whoName, mk("div", "who-user", "@" + a.username));
+    who.append(whoName, mk("div", "who-user", "@" + rec.id));
     const badges = mk("div", "badges");
     const chev = mk("i", "fas fa-chevron-right chev");
     summary.append(avatar, who, badges, chev);
@@ -473,23 +466,24 @@
     return details;
   }
 
-  function addAdminRecord(data, { changed = false } = {}) {
-    const rec = { data, initial: "", details: null, refresh: null };
+  function addAdminRecord(tid, data, { changed = false } = {}) {
+    const rec = { id: tid, data, initial: "", details: null, refresh: null };
     // the saved state is whatever was loaded; a newly promoted teacher starts from "not an admin"
     rec.initial = changed
       ? snapshotOf({ isAdmin: false, adminFunctions: {}, roles: data.roles ?? [] })
       : snapshotOf(data);
-    admins.set(data.username, rec);
+    admins.set(tid, rec);
     return rec;
   }
 
-  adminSnap.forEach(d => {
-    const data = d.data();
-    data.username ??= d.id;
-    // a non-school admin only manages admins whose sections overlap their own
-    if (!isSchool && !(data.sections ?? []).some(s => sects.includes(s))) return;
-    addAdminRecord(data);
-  });
+  // Teachers this account can see: those in its sections (everyone, for the school account).
+  const teacherList = [];   // { id, data }
+  for (const tid in teachers) {
+    const data = teachers[tid];
+    if (!isSchool && !(data.sections ?? []).some(s => sects.includes(s))) continue;
+    teacherList.push({ id: tid, data });
+    if (data.isAdmin) addAdminRecord(tid, data);
+  }
 
   // ---------- list ----------
   function render() {
@@ -499,7 +493,7 @@
     let shown = 0;
     recs.forEach(rec => {
       if (!rec.details) buildAdmin(rec);
-      const match = !q || String(rec.data.name).toLowerCase().includes(q) || rec.data.username.toLowerCase().includes(q);
+      const match = !q || String(rec.data.name).toLowerCase().includes(q) || rec.id.toLowerCase().includes(q);
       rec.details.hidden = !match;
       if (match) shown++;
       adminsEl.append(rec.details);
@@ -517,21 +511,14 @@
   $("toolbar").hidden = false;
 
   // ---------- add admin ----------
-  // Candidates come from the section teacher lists (or the school-teachers snapshot for the
-  // school account), so the whole teachers collection is never read.
-  const candidates = new Map(); // id -> name
-  if (isSchool && schoolTeachersDoc?.exists()) {
-    (schoolTeachersDoc.data().teachers ?? []).forEach(t => candidates.set(String(t.id), t.name));
-  } else {
-    sects.forEach(s => (sectionData[s]?.teachers ?? []).forEach(t => candidates.set(String(t.id), t.name)));
-  }
-
+  // Candidates are the visible teachers who are not admins yet.
   function renderCandidates() {
     const q = $("candSearch").value.trim().toLowerCase();
     const list = $("candList");
     list.innerHTML = "";
-    const rows = [...candidates].filter(([cid, name]) => !admins.has(cid) &&
-      (!q || String(name).toLowerCase().includes(q) || cid.toLowerCase().includes(q)))
+    const rows = teacherList.filter(t => !admins.has(t.id) &&
+      (!q || String(t.data.name).toLowerCase().includes(q) || t.id.toLowerCase().includes(q)))
+      .map(t => [t.id, t.data.name])
       .sort((x, y) => String(x[1]).localeCompare(String(y[1])));
     if (!rows.length) {
       list.append(mk("li", "muted", q ? "No teachers match your search." : "Everyone available is already an admin."));
@@ -543,39 +530,23 @@
       info.append(mk("div", "who-name", name ?? cid), mk("div", "who-user", "@" + cid));
       const btn = mk("button", "btn small primary", "Add");
       btn.type = "button";
-      btn.onclick = () => promote(cid, btn);
+      btn.onclick = () => promote(cid);
       li.append(mk("div", "avatar", initials(name ?? cid)), info, btn);
       list.append(li);
     });
   }
 
-  async function promote(cid, btn) {
-    btn.disabled = true;
-    btn.textContent = "Adding…";
-    try {
-      const snap = await getDoc(teacherRef(cid));
-      if (!snap.exists()) {
-        toast(`No account found for @${cid}.`, "error");
-        return;
-      }
-      const data = snap.data();
-      data.username ??= cid;
-      data.isAdmin = true;
-      data.adminFunctions = {};
-      const rec = addAdminRecord(data, { changed: true });
-      $("addDialog").close();
-      searchEl.value = "";
-      render();
-      rec.details.open = true;
-      rec.details.scrollIntoView({ behavior: "smooth", block: "start" });
-      toast(`${data.name ?? cid} added. Choose their permissions, then save.`, "info");
-    } catch (err) {
-      console.error(err);
-      toast("Could not add admin: " + (err.code || err.message), "error");
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "Add";
-    }
+  function promote(cid) {
+    const data = teachers[cid];
+    data.isAdmin = true;
+    data.adminFunctions = {};
+    const rec = addAdminRecord(cid, data, { changed: true });
+    $("addDialog").close();
+    searchEl.value = "";
+    render();
+    rec.details.open = true;
+    rec.details.scrollIntoView({ behavior: "smooth", block: "start" });
+    toast(`${data.name ?? cid} added. Choose their permissions, then save.`, "info");
   }
 
   newAddBtn.onclick = () => {
@@ -595,16 +566,9 @@
     saveBtn.disabled = discardBtn.disabled = true;
     saveBtn.textContent = "Saving…";
     try {
-      // one document per admin, and only the admins that changed
-      const batch = writeBatch(db);
-      changed.forEach(rec => batch.update(teacherRef(rec.data.username), {
-        isAdmin: !!rec.data.isAdmin,
-        adminFunctions: rec.data.adminFunctions ?? {},
-        roles: rec.data.roles ?? []
-      }));
-      await batch.commit();
+      await setDoc(doc(db, schoolId, "teachers"), teachers);
       changed.forEach(rec => { rec.initial = snapshotOf(rec.data); rec.refresh(); });
-      toast(changed.length === 1 ? "Saved 1 admin." : `Saved ${changed.length} admins.`);
+      toast("Saved!");
     } catch (err) {
       console.error(err);
       toast("Save failed: " + (err.code || err.message) + ". Your changes are still here, so you can try again.", "error");
